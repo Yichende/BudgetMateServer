@@ -7,11 +7,11 @@ const router = express.Router();
 // 所有账单
 router.get('/', auth, async (req, res) => {
   try {
-    const bills = await Transaction.findAll({
+    const data = await Transaction.findAll({
       where: { user_id: req.user.id },
       order: [['date', 'DESC']]
     });
-    res.json(bills);
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -43,6 +43,7 @@ router.delete('/:id', auth, async (req, res) => {
     if (!bill) return res.status(404).json({ message: '账单不存在' });
 
     await bill.destroy();
+    console.log('=== bill had destroyed ===');
     res.json({ message: '删除成功' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -56,6 +57,7 @@ router.put('/:id', auth, async (req, res) => {
     if (!bill) return res.status(404).json({ message: '账单不存在' });
 
     await bill.update(req.body);
+    console.log(' === bill had updated ===');
     res.json(bill);
   } catch (err) {
     res.status(500).json({ error: err.message });

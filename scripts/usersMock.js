@@ -1,8 +1,8 @@
 const { faker } = require('@faker-js/faker');
-const { User, Transaction } = require('../models');
+const { User } = require('../models');
 const sequelize = require('../config/db');
 
-async function createMockData() {
+async function createUsersMockData() {
   try {
     await sequelize.sync({ force: true }); // 清空数据库，重新创建表结构
 
@@ -12,17 +12,6 @@ async function createMockData() {
         email: faker.internet.email(),
         password: 123456,
       });
-
-      for (let j = 0; j < 10; j++) {
-        await Transaction.create({
-          user_id: user.id,
-          type: faker.helpers.arrayElement(['income', 'expense']),
-          amount: parseFloat(faker.number.float({ min: 10, max: 1000 }).toFixed(2)),
-          category: faker.commerce.department(),
-          description: faker.lorem.sentence(),
-          date: faker.date.recent(30),
-        });
-      }
     }
 
     console.log('Mock data created successfully.');
@@ -33,4 +22,4 @@ async function createMockData() {
   }
 }
 
-createMockData();
+createUsersMockData();
