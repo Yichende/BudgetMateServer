@@ -1,10 +1,10 @@
 const { faker } = require('@faker-js/faker');
 const { User } = require('../models');
-const sequelize = require('../config/db');
+// const sequelize = require('../config/db');
 
 async function createUsersMockData() {
   try {
-    await sequelize.sync({ force: true }); // 清空数据库，重新创建表结构
+    // await sequelize.sync({ force: true }); // 清空数据库，重新创建所有表结构
 
     for (let i = 0; i < 5; i++) {
       const user = await User.create({

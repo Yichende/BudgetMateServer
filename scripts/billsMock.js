@@ -1,5 +1,6 @@
 const dayjs = require("dayjs");
 const { Transaction } = require("../models");
+const sequelize = require("../config/db");
 
 async function createBillsMock(userId = 1) {
   const categories = ["购物", "餐饮", "娱乐", "交通", "生活缴费", "转账", "其他"];
@@ -42,7 +43,7 @@ async function createBillsMock(userId = 1) {
       }
     }
   }
-
+  await Transaction.sync({ force: true });
   await Transaction.bulkCreate(txs);
   console.log(`已插入 ${txs.length} 条 mock 数据`);
   // console.log(txs);

@@ -1,20 +1,29 @@
-// JWT鉴权中间件
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+module.exports = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    return res.status(401).json({ message: "缺少认证信息" });
+  }
 
+  const token = authHeader.split(" ")[1];
   if (!token) {
-    return res.status(401).json({message: '未提供token'});
+    return res.status(401).json({ message: "无效的 token 格式" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
-  } catch(err){
-    return res.status(403).json({message: '无效的token'})
-  }
-}
+  } catch (err) {
+    console.warn("token 校验失败:", err.name, err.message);
 
-module.exports = authMiddleware;
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "token 已过期" });
+    }
+    if (err.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "无效的 token" });
+    }
+    return res.status(401).json({ message: "token 校验失败" });
+  }
+};
