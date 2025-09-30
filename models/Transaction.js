@@ -10,6 +10,7 @@ const Transaction = sequelize.define(
     date: { type: DataTypes.DATE, allowNull: false },
     note: { type: DataTypes.STRING },
     user_id: { type: DataTypes.INTEGER, allowNull: false },
+    synced: { type: DataTypes.BOOLEAN, defaultValue: false },
   },
   {
     timestamps: true,

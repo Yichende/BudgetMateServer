@@ -1,6 +1,5 @@
 const dayjs = require("dayjs");
 const { Transaction } = require("../models");
-const sequelize = require("../config/db");
 
 async function createBillsMock(userId = 1) {
   const categories = ["购物", "餐饮", "娱乐", "交通", "生活缴费", "转账", "其他"];
@@ -39,6 +38,7 @@ async function createBillsMock(userId = 1) {
           date: date,
           note: "mock数据",
           user_id: userId,
+          synced: true,
         });
       }
     }
