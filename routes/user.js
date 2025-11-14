@@ -16,7 +16,13 @@ router.post('/register', async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
     const newUser = await User.create({ username, email, password: hashed });
 
-    res.status(201).json({ message: '注册成功', user: { id: newUser.id, email: newUser.email } });
+    const token = jwt.sign(
+      { id: newUser.id, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({ token, user: { id: newUser.id, email: newUser.email } });
   } catch (err) {
     res.status(500).json({ message: '注册失败', error: err.message });
   }

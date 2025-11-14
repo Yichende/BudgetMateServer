@@ -53,14 +53,28 @@ app.use('/api/bill', billRoutes);
 
 app.get('/', (req, res) => res.send('API is running'));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, async () => {
+const PORT = process.env.DB_PORT || 3000;
+// app.listen(PORT, async () => {
+//   try {
+//     await sequelize.authenticate();
+//     console.log('数据库连接成功');
+//   } catch (err) {
+//     console.error('数据库连接失败：', err);
+//   }
+
+//   console.log(`🚀 Server is running at http://localhost:${PORT}`);
+// });
+// app.listen(3000, "0.0.0.0", () => console.log("Server running on 0.0.0.0:3000"));
+app.listen(PORT, "0.0.0.0", async () => {
   try {
     await sequelize.authenticate();
     console.log('数据库连接成功');
+
+    await sequelize.sync({ alter: true });
+    console.log("数据库结构同步完成");
   } catch (err) {
     console.error('数据库连接失败：', err);
   }
 
-  console.log(`🚀 Server is running at http://localhost:${PORT}`);
+  console.log(`🚀 Server is running at http://0.0.0.0:${PORT}`);
 });
