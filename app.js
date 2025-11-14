@@ -9,7 +9,11 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization"
+}));
 
 function formatDate(date) {
   const pad = (n) => n.toString().padStart(2, '0'); // 补零
