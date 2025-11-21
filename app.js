@@ -1,11 +1,20 @@
 const express = require('express');
 const cors = require("cors");
 const dotenv = require('dotenv');
+const os = require("os");
 const { sequelize } = require('./models');
 const userRoutes = require('./routes/user');
 const billRoutes = require('./routes/bill');
+const path = require("path")
 
-dotenv.config();
+const envFile =
+  process.env.NODE_ENV === "production"
+    ? ".env.production"
+    : ".env.development";
+
+dotenv.config({
+  path: path.resolve(__dirname, envFile)
+});
 
 const app = express();
 app.use(express.json());
@@ -14,6 +23,27 @@ app.use(cors({
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization"
 }));
+
+function getHost() {
+  const isProd = process.env.NODE_ENV === "production";
+  if (isProd) return "0.0.0.0";
+
+  const interfaces = os.networkInterfaces();
+  const hasLAN =
+  Object.values(interfaces)
+    .flat()
+    .filter((i) => i && i.family === 'IPv4' && !i.internal)
+    .length > 0;
+
+  if (hasLAN) {
+    return "0.0.0.0"
+  }
+
+  return "localhost";
+}
+
+const PORT = process.env.DB_PORT || 5000;
+const HOST = getHost();
 
 function formatDate(date) {
   const pad = (n) => n.toString().padStart(2, '0'); // 补零
@@ -57,28 +87,27 @@ app.use('/api/bill', billRoutes);
 
 app.get('/', (req, res) => res.send('API is running'));
 
-const PORT = process.env.DB_PORT || 3000;
-app.listen(PORT, async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('数据库连接成功');
-  } catch (err) {
-    console.error('数据库连接失败：', err);
-  }
-
-  console.log(`🚀 Server is running at http://localhost:${PORT}`);
-});
-
-// app.listen(PORT, "0.0.0.0", async () => {
+// app.listen(PORT, async () => {
 //   try {
 //     await sequelize.authenticate();
 //     console.log('数据库连接成功');
-
-//     await sequelize.sync({ alter: true });
-//     console.log("数据库结构同步完成");
 //   } catch (err) {
 //     console.error('数据库连接失败：', err);
 //   }
 
-//   console.log(`🚀 Server is running at http://0.0.0.0:${PORT}`);
+//   console.log(`🚀 Server is running at http://localhost:${PORT}`);
 // });
+
+app.listen(PORT, HOST, async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('数据库连接成功');
+
+    await sequelize.sync({ alter: true });
+    console.log("数据库结构同步完成");
+  } catch (err) {
+    console.error('数据库连接失败：', err);
+  }
+
+  console.log(`🚀 Server is running at http://${HOST}:${PORT}`);
+});

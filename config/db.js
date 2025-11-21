@@ -1,5 +1,17 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
 const { Sequelize } = require('sequelize');
+const path = require("path");
+
+dotenv.config({
+  path:
+    process.env.NODE_ENV === "production"
+      ? path.resolve(__dirname, "../.env.production")
+      : path.resolve(__dirname, "../.env.development"),
+});
+
+console.log(`++Sequeliza++ 当前环境：${process.env.NODE_ENV}`);
+
+const isProd = process.env.NODE_ENV === "production";
 
 
 const sequelize = new Sequelize(
@@ -10,13 +22,18 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     dialect: 'mysql',
     logging: false,
+
+    // 若为生产环境则增加连接池
+    pool: isProd
+      ? {
+          max: 10,
+          min: 2,
+          acquire: 30000,
+          idle: 10000,
+        }
+      : undefined,
   }
 );
-
-// console.log('DB_HOST:', process.env.DB_HOST);
-// console.log('DB_USER:', process.env.DB_USER);
-// console.log('DB_PASS:', process.env.DB_PASS ? '***' : '(empty)');
-// console.log('DB_NAME:', process.env.DB_NAME);
 
 
 module.exports = sequelize;
